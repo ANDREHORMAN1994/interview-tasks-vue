@@ -2,30 +2,26 @@
 const numbers = [];
 let limit = 100;
 
-function n()
-{
+function n() {
 	let numbers = [];
-	for(var i = 0; i < limit; i++) { numbers = [...numbers, i]; }
+	for (var i = 0; i < limit; i++) { numbers = [...numbers, i]; }
 
 	return numbers.sort(() => Math.random() - 0.5);
 }
 
 function hov(number) {
-  const nums = document.querySelectorAll('.number');
+	const nums = document.querySelectorAll('.number');
 
-  for(let i = 0; i < nums.length; i++)
-  {
-    const num = nums[i].textContent.trim();
-    if(number % num === 0)
-    {
-      nums[i].classList.add('active')
-      console.log('divisor', num)
-    }
-  }
+	for (let i = 0; i < nums.length; i++) {
+		const num = nums[i].textContent.trim();
+		if (number % num === 0) {
+			nums[i].classList.add('active')
+			console.log('divisor', num)
+		}
+	}
 }
 
-function reset()
-{
+function reset() {
 	const nums = document.querySelectorAll('.number');
 	nums.forEach(num => num.classList.remove('active'))
 }
@@ -34,19 +30,14 @@ function reset()
 <template>
 	<div>
 		<input type="number" v-model="limit" /><br /><br />
-		<div class="number"
-			:id="'number-'+number"
-			v-for="number in n()"
-			:key="number"
-			@mouseover="hov(number)"
-			@mouseout="reset"
-		>
+		<div class="number" :id="'number-' + number" v-for="number in n()" :key="number" @mouseover="hov(number)"
+			@mouseout="reset">
 			{{ number }}
 		</div>
 	</div>
 </template>
 
-<style>
+<style scoped>
 .number {
 	display: inline-block;
 	padding: 5px;
