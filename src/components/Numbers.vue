@@ -1,51 +1,86 @@
 <script setup lang="ts">
-const numbers = [];
-let limit = 100;
+import { ref, watch } from 'vue';
 
-function n() {
-	let numbers = [];
-	for (var i = 0; i < limit; i++) { numbers = [...numbers, i]; }
+// Creating a state with a number value and a boolean to indicate whether it is a divisor
+type NumberItem = {
+  value: number;
+  isDivisor: boolean;
+};
 
-	return numbers.sort(() => Math.random() - 0.5);
+// Using ref to set reactive state
+const limit = ref<number>(100);
+
+// Renaming functions and variables to be more descriptive
+function changeListOfNumbers() {
+  let newListOfNumbers: NumberItem[] = [];
+
+  for (let i = 0; i < limit.value; i += 1) {
+    const newItem = { value: i, isDivisor: false };
+    newListOfNumbers = [...newListOfNumbers, newItem];
+  }
+
+  return newListOfNumbers.sort(() => Math.random() - 0.5);
 }
 
-function hov(number) {
-	const nums = document.querySelectorAll('.number');
+// Using ref to calculate list of numbers reactively
+const numbers = ref<NumberItem[]>(changeListOfNumbers());
 
-	for (let i = 0; i < nums.length; i++) {
-		const num = nums[i].textContent.trim();
-		if (number % num === 0) {
-			nums[i].classList.add('active')
-			console.log('divisor', num)
-		}
-	}
+// Removing functions that manipulated the DOM directly, using reactive state for hover control
+function hoverNumber(number: number) {
+  for (let i = 0; i < numbers.value.length; i++) {
+    const num = numbers.value[i];
+    if (number % num.value === 0) {
+      numbers.value[i].isDivisor = true;
+    } else {
+      numbers.value[i].isDivisor = false;
+    }
+  }
 }
 
+// Removing direct DOM manipulation, updating numbers state
 function reset() {
-	const nums = document.querySelectorAll('.number');
-	nums.forEach(num => num.classList.remove('active'))
+  numbers.value.forEach((num) => {
+    num.isDivisor = false;
+  });
 }
+
+// Watching limit changes and updating the list of numbers
+watch(
+  limit,
+  () => {
+    numbers.value = changeListOfNumbers();
+  },
+  { deep: true, immediate: true },
+);
 </script>
 
 <template>
-	<div>
-		<input type="number" v-model="limit" /><br /><br />
-		<div class="number" :id="'number-' + number" v-for="number in n()" :key="number" @mouseover="hov(number)"
-			@mouseout="reset">
-			{{ number }}
-		</div>
-	</div>
+  <div>
+    <input type="number" v-model="limit" />
+    <br />
+    <br />
+    <div
+      v-for="numberObj in numbers"
+      :key="numberObj.value"
+      :id="`number-${numberObj.value}`"
+      :class="['number', { active: numberObj.isDivisor }]"
+      @mouseover="hoverNumber(numberObj.value)"
+      @mouseout="reset"
+    >
+      {{ numberObj.value }}
+    </div>
+  </div>
 </template>
 
 <style scoped>
 .number {
-	display: inline-block;
-	padding: 5px;
-	background-color: lightgrey;
-	margin: 5px;
+  display: inline-block;
+  padding: 5px;
+  background-color: rgba(211, 211, 211, 0.527);
+  margin: 5px;
 }
 
 .active {
-	background-color: red;
+  background-color: red;
 }
 </style>
